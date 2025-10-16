@@ -126,7 +126,7 @@ The experiment parameters of each dataset are formated in the `./Run.sh`. You ca
 <p align="center">
 <img src="./img/result2.jpg" height = "300" alt="" align=center />
 <br><br>
-<b>Figure 2.</b> Forecasting results without missing values..
+<b>Figure 3.</b> Forecasting results without missing values.
 </p>
 
 
