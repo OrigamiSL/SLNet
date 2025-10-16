@@ -35,35 +35,44 @@ pip install -r requirements.txt
 ```
 
 ## Raw Data
-ECL was acquired at: [here](https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy?usp=sharing). Solar dataset was acquired at: [Solar](https://drive.google.com/drive/folders/12ffxwxVAGM_MQiYpIk9aBLQrb2xQupT-). Wind was acquired at: [Wind]( https://www.kaggle.com/datasets/sohier/30-years-of-european-wind-generation). Hydro was acquired at: [Hydro](https://www.kaggle.com/datasets/mahbuburrahman2020/europe-green-electricity-generation-consumption).
+ECL, Traffic and Weather dataset were acquired at: [here](https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy?usp=sharing). Solar dataset was acquired at: [Solar](https://drive.google.com/drive/folders/1Gv1MXjLo5bLGep4bsqDyaNMI2oQC9GH2?usp=sharing).
 
 ### Data Preparation
-We supply all processed datasets and put them under `./data`, the folder tree is shown below:
-```
-|-data
-| |-ECL
-| | |-ECL.csv
-| |
-| |-Hydro_BXX
-| | |-Hydro_BXX.csv
-| |
-| |-Solar
-| | |-solar_AL.csv
-| |
-| |-Wind
-| | |-Wind.csv
-| |
-| ...
-```
+After you acquire raw data of all datasets, please separately place them in corresponding folders at `./data`. 
 
-The processing details for the four datasets are as follows. We place ECL in the folder `./electricity` of [here](https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy?usp=sharing) (the folder tree in the link is shown as below) into folder `./data` and rename it from `./electricity` to `./ECL`. We rename the file of ECL from `electricity.csv` to `ECL.csv` and rename its last variable from `OT` to original `MT_321`. The processed file can be found at `./data/ECL/ECL.csv`
+We place ECL in the folder `./electricity`, Traffic in the folder `./traffic`  and Weather in the folder `./weather` of [here](https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy?usp=sharing) (the folder tree in the link is shown as below) into folder `./data` and rename them from `./electricity`, `./traffic` and `./weather` to  `./ECL`, `./Traffic` and`./weather` respectively. We rename the file of ECL/Traffic from `electricity.csv`/`traffic.csv` to `ECL.csv`/`Traffic.csv` and rename its last variable from `OT`/`OT` to original `MT_321`/`Sensor_861` separately.
 ```
 The folder tree in https://drive.google.com/drive/folders/1ZOYpTUa82_jCcxIdTmyr0LXQfvaM9vIy?usp=sharing:
 |-autoformer
 | |-electricity
 | | |-electricity.csv
+| |
+| |-traffic
+| | |-traffic.csv
+| |
+| |-weather
+| | |-weather.csv
 ```
-To standardize the data format, we convert the data file of [Solar](https://drive.google.com/drive/folders/12ffxwxVAGM_MQiYpIk9aBLQrb2xQupT-) from 'solar_AL.txt' to 'solar_AL.csv'. We place the processed file into the folder `./data/Solar`. For convenience, we processed the Wind and Hydro datasets and you can obtain the processed files at `./data/Wind/Wind.csv` and `./data/Hydro_BXX/Hydro_BXX.csv`, respectively.
+
+To standardize the data format, we convert the data file of [Solar](https://drive.google.com/drive/folders/1Gv1MXjLo5bLGep4bsqDyaNMI2oQC9GH2?usp=sharing) from 'solar_AL.txt' to 'solar_AL.csv'. Then we compress this file and upload it at [here](https://github.com/OrigamiSL/FPPformer_MD/tree/master/data/Solar) , where you can get the data file by simply unzipping the 'solar_AL.zip' file.
+
+
+After you process all the datasets, you will obtain folder tree:
+```
+|-data
+| |-ECL
+| | |-ECL.csv
+| |
+| |-Solar
+| | |-solar_AL.csv
+| |
+| |-Traffic
+| | |-Traffic.csv
+| |
+| |-weather
+| | |-weather.csv
+
+```
 
 ## Usage
 Commands for training and testing SLNet of all datasets are in `./Run.sh`. 
@@ -73,7 +82,7 @@ More parameter information please refer to `main.py`.
 We provide a complete command for training and testing SLNet:
 
 ```
-python -u main.py --data <data> --input_len <input_len> --pred_len <pred_len> --period <period> --encoder_layer <encoder_layer> --layer_stack <layer_stack> --MODWT_level<MODWT_level> --patch_size<patch_size> --ccc_number <ccc_number> --d_model <d_model> --learning_rate <learning_rate> --dropout <dropout> --batch_size <batch_size> --train_epochs <train_epochs> --itr <itr> --train --patience <patience> --decay<decay>
+python -u main.py --data <data> --basic_input <input_len>  --pred_len <pred_len> --layer_num <layer_num> --patch_size <patch_size> --bins <bins> --d_model <d_model> --Boundary <Boundary> --learning_rate <learning_rate> --dropout <dropout> --missing_ratio <missing_ratio> --batch_size <batch_size>  --train --train_epochs <train_epochs> <itr> --train --patience <patience> --decay<decay>
 ```
 
 Here we provide a more detailed and complete command description for training and testing the model:
@@ -84,17 +93,15 @@ Here we provide a more detailed and complete command description for training an
 |   root_path    |                                       The root path of the data file                                       |
 |   data_path    |                                             The data file name                                             |
 |  checkpoints   |                                       Location of model checkpoints                                        |
-|   input_len    |                                           Input sequence length                                            |
-|    pred_len    |                                         Prediction sequence length                                         |
-|    period    |                                         Vested periods for global timestamps                                         |
+|   basic_input   |                                           Basic input length                                            |
+|    pred_len    |                                         prediction Length                                         |
 |     enc_in     |                                                 Input variable number                                                |
 |    dec_out     |                                                Output variable number                                             |
 |    d_model     |                                             Hidden dims of model                                             |
-|  encoder_layer |                                            The number of stages                                            |
-|   layer_stack  |                                       The number of layers per stage                                       |
-|   patch_size   |                                The initial patch size in patch-wise attention                              |
-|  MODWT_level   |                                           The level of MODWT/MRA                                           |
-|  ccc_num  |                                           Number of correlated variables                                           |
+|    layer_num     |                                             Model stage number                                             |
+|   patch_size   |                                Patch size                              |
+| Boundary | Boundary for different patch size|
+| missing_ratio | Missing_ratio|
 |    dropout     |                                                  Dropout                                                   |
 |    num_workers     |                                                  Data loader num workers                                                   |
 |      itr       |                                             Experiments times                                              |
@@ -102,7 +109,9 @@ Here we provide a more detailed and complete command description for training an
 |   batch_size   |                         The batch size of training input data                          |
 |   decay   |                         Decay rate of learning rate per epoch                         |
 |    patience    |                                          Early stopping patience                                           |
+| bins | bin num |
 | learning_rate  |                                          Optimizer learning rate                                           |
+| train | whether to train |
 
 
 ## Results
